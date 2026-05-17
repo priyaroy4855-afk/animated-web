@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Priya Roy | NexGen Premium Portfolio</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    
+    <style>
+        :root {
+            --bg-deep: #030712;
+            --accent-glow: #3b82f6;
+            --accent-purple: #8b5cf6;
+            --text-light: #f3f4f6;
+            --text-dim: #9ca3af;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body {
+            background-color: var(--bg-deep);
+            color: var(--text-light);
+            overflow-x: hidden;
+            min-height: 100vh;
+        }
+
+        /* --- 3D CANVAS BACKGROUND GRAPHICS --- */
+        #webgl-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            z-index: 1;
+            pointer-events: none;
+        }
+
+        /* --- LAYERED UI FOREGROUND --- */
+        .ui-wrapper {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+        }
+
+        /* --- SCROLL SECTIONS ARCHITECTURE --- */
+        section {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 4rem 2rem;
+            position: relative;
+        }
+
+        .content-box {
+            max-width: 1000px;
+            width: 100%;
+            background: rgba(17, 24, 39, 0.35);
+            backdrop-filter: blur(24px);
+            -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 4rem;
+            border-radius: 32px;
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.4);
+            opacity: 0;
+            transform: translateY(60px) scale(0.95);
+        }
+
+        /* --- SECTION 1: HERO VIEW --- */
+        .hero-title {
+            font-size: 4.5rem;
+            font-weight: 900;
+            letter-spacing: -2px;
+            line-height: 1.1;
+            margin-bottom: 1.5rem;
+            background: linear-gradient(135deg, #fff 30%, var(--text-dim));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-title span {
+            background: linear-gradient(135deg, var(--accent-glow), var(--accent-purple));
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .hero-subtitle {
+            font-size: 1.5rem;
+            color: var(--text-dim);
+            font-weight: 500;
+            margin-bottom: 3rem;
+        }
+
+        .scroll-indicator {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            color: var(--accent-glow);
+            font-weight: 700;
+            animation: bounce 2s infinite;
+        }
+
+        /* --- SECTION 2: ACADEMIC PROFILE --- */
+        .grid-layout {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 2rem;
+            margin-top: 2.5rem;
+        }
+
+        .grid-card {
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            padding: 2rem;
+            border-radius: 20px;
+            transition: all 0.3s ease;
+        }
+
+        .grid-card:hover {
+            border-color: var(--accent-glow);
+            background: rgba(59, 130, 246, 0.05);
+        }
+
+        .card-label {
+            font-size: 0.8rem;
+            color: var(--text-dim);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .card-value {
+            font-size: 1.3rem;
+            font-weight: 700;
+        }
+
+        /* --- SECTION 3: INVENTORY TRACKER ENGINE --- */
+        .tracker-panel {
+            background: rgba(7, 10, 19, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 20px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr auto;
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 768px) {
+            .form-row { grid-template-columns: 1fr; }
+            .hero-title { font-size: 2.8rem; }
+        }
+
+        input {
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #fff;
+            padding: 0.8rem 1.2rem;
+            border-radius: 10px;
+            font-size: 0.95rem;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus { border-color: var(--accent-glow); }
+
+        button {
+            background: linear-gradient(135deg, var(--accent-glow), var(--accent-purple));
+            color: #fff;
+            border: none;
+            padding: 0.8rem 1.5rem;
+            border-radius: 10px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: transform 0.2s ease;
+        }
+
+        button:hover { transform: scale(1.03); }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            text-align: left;
+            font-size: 0.95rem;
+        }
+
+        th, td { padding: 1rem; border-bottom: 1px solid rgba(255, 255, 255, 0.05); }
+        th { color: var(--text-dim); font-size: 0.85rem; text-transform: uppercase; }
+
+        .badge {
+            background: rgba(16, 185, 129, 0.1);
+            color: #10b981;
+            padding: 0.3rem 0.6rem;
+            border-radius: 6px;
+            font-size: 0.75rem;
+            font-weight: 700;
+        }
+
+        @keyframes bounce {
+            0%, 20%, 50%, 80%, 100% { transform: translateY(0); }
+            40% { transform: translateY(-10px); }
+            60% { transform: translateY(-5px); }
+        }
+    </style>
+</head>
+<body>
+
+    <canvas id="webgl-canvas"></canvas>
+
+    <div class="ui-wrapper">
+        
+        <section id="hero-node">
+            <div class="content-box" style="text-align: center;">
+                <h1 class="hero-title">Priya Roy<br><span>Ecosystem OS</span></h1>
+                <p class="hero-subtitle">Advanced Web Architecture & Interactive Information Control Modules</p>
+                <div class="scroll-indicator">Scroll Down to Explore Matrix</div>
+            </div>
+        </section>
+
+        <section id="profile-node">
+            <div class="content-box">
+                <h2 style="font-size: 2rem; font-weight: 800; margin-bottom: 1rem;">Developer Architecture</h2>
+                <p style="color: var(--text-dim); line-height: 1.6;">Academic credentials linked with production-ready asset allocation computational stacks.</p>
+                
+                <div class="grid-layout">
+                    <div class="grid-card">
+                        <div class="card-label">Identity Core</div>
+                        <div class="card-value">Priya Roy</div>
+                    </div>
+                    <div class="grid-card">
+                        <div class="card-label">Structural Stream</div>
+                        <div class="card-value">BCA Systems</div>
+                    </div>
+                    <div class="grid-card">
+                        <div class="card-label">Project Scope</div>
+                        <div class="card-value">Enterprise Matrix</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="tracker-node">
+            <div class="content-box">
+                <h2 style="font-size: 2rem; font-weight: 800;">Real-Time Stock Engine</h2>
+                <p style="color: var(--text-dim); margin-top: 0.5rem;">Pure object array computations tracking global asset valuations instantaneously.</p>
+                
+                <div class="tracker-panel">
+                    <form onsubmit="event.preventDefault(); appendAsset();" class="form-row">
+                        <input type="text" id="asset-name" placeholder="Item Name" required>
+                        <input type="number" id="asset-qty" placeholder="Quantity" min="0" required>
+                        <input type="number" id="asset-price" placeholder="Valuation Price" min="0" step="0.01" required>
+                        <button type="submit">Inject Node</button>
+                    </form>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Asset Object</th>
+                                <th>Quantum Allocation</th>
+                                <th>Value Baseline</th>
+                                <th>Status Field</th>
+                            </tr>
+                        </thead>
+                        <tbody id="asset-tbody">
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        // --- STEP 1: INITIALIZE ADVANCED THREE.JS 3D CANVAS SCENE ---
+        const canvas = document.getElementById('webgl-canvas');
+        const scene = new THREE.Scene();
+        
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+
+        const renderer = new THREE.WebGLRenderer({ canvas: canvas, antialias: true, alpha: true });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2));
+
+        // Generate 3D Interactive Particles Array Geometry
+        const particlesCount = 1500;
+        const positions = new Float32Array(particlesCount * 3);
+        const randomColors = new Float32Array(particlesCount * 3);
+
+        for(let i = 0; i < particlesCount * 3; i++) {
+            positions[i] = (Math.random() - 0.5) * 12; // Spread across scene matrix
+            randomColors[i] = Math.random();
+        }
+
+        const particlesGeometry = new THREE.BufferGeometry();
+        particlesGeometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+        particlesGeometry.setAttribute('color', new THREE.BufferAttribute(randomColors, 3));
+
+        // Create Quantum Glowing Mesh Material
+        const particlesMaterial = new THREE.PointsMaterial({
+            size: 0.04,
+            vertexColors: true,
+            transparent: true,
+            opacity: 0.8,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particleMesh = new THREE.Points(particlesGeometry, particlesMaterial);
+        scene.add(particleMesh);
+
+        // Core Render Execution Frame Loop
+        function tick() {
+            particleMesh.rotation.y += 0.0015;
+            particleMesh.rotation.x += 0.0008;
+            renderer.render(scene, camera);
+            window.requestAnimationFrame(tick);
+        }
+        tick();
+
+        // Responsive Window Realignment Matrix
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+
+        // --- STEP 2: GSAP DRIVEN INTERACTIVE SCROLL-BINDING TIMELINE ---
+        gsap.registerPlugin(ScrollTrigger);
+
+        // Map Camera movement vectors cleanly along user scrolling positions
+        gsap.to(particleMesh.position, {
+            x: -1.5,
+            y: 1.2,
+            z: 2,
+            scrollTrigger: {
+                trigger: "#profile-node",
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 1
+            }
+        });
+
+        gsap.to(particleMesh.rotation, {
+            x: 0.5,
+            y: 2.5,
+            scrollTrigger: {
+                trigger: "#tracker-node",
+                start: "top bottom",
+                end: "bottom top",
+                scrub: 1.5
+            }
+        });
+
+        // Trigger Butter-Smooth Layer Reveals for HTML Cards
+        document.querySelectorAll('.content-box').forEach((box) => {
+            gsap.to(box, {
+                opacity: 1,
+                y: 0,
+                scale: 1,
+                duration: 1,
+                scrollTrigger: {
+                    trigger: box,
+                    start: "top 80%",
+                    end: "bottom 20%",
+                    toggleActions: "play none none reverse"
+                }
+            });
+        });
+
+
+        // --- STEP 3: FUNCTIONAL TRACKER ARRAY LOGIC ---
+        let portfolioAssets = [
+            { name: "Alpha Edge Cluster", qty: 24, price: 1850 },
+            { name: "Quantum Interconnect Link", qty: 140, price: 320 }
+        ];
+
+        function renderAssets() {
+            const tbody = document.getElementById('asset-tbody');
+            tbody.innerHTML = '';
+
+            portfolioAssets.forEach(asset => {
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td style="font-weight: 600; color:#fff;">${asset.name}</td>
+                    <td>${asset.qty} modules</td>
+                    <td>₹${asset.price.toFixed(2)}</td>
+                    <td><span class="badge">Operational</span></td>
+                `;
+                tbody.appendChild(tr);
+            });
+        }
+
+        function appendAsset() {
+            const name = document.getElementById('asset-name').value;
+            const qty = parseInt(document.getElementById('asset-qty').value);
+            const price = parseFloat(document.getElementById('asset-price').value);
+
+            portfolioAssets.push({ name, qty, price });
+            document.getElementById('asset-name').value = '';
+            document.getElementById('asset-qty').value = '';
+            document.getElementById('asset-price').value = '';
+            
+            renderAssets();
+        }
+
+        // Run baseline render cycle
+        renderAssets();
+    </script>
+</body>
+</html>
